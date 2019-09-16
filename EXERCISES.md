@@ -102,9 +102,15 @@ File: `client/src/handlers.ts`
 3. The outgoing event from server back to the client
 
 - Basically you now have all the tools to create a basic chatbox as outlined in the functionality above
+
+Focus: frontend components
+
 - I'll leave it to you to figure out the details of connecting the final event to your frontend component
+
   &nbsp;
+
   A few tips:
+
 - Make an empty list called `chatHistory` to which you can push an object containg the userMessage and the userName.
 - You can use `chatHistory` to map out entries and display all sent lines, you can use the socket.io listener event in the `handlers` file to add entries
 - Hook up your outgoing `message` event to an <input> and a <button>Button</button> component
