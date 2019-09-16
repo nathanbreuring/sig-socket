@@ -41,33 +41,71 @@ Once you got that figured out, you'll add some functionality:
 - the server hotreloads your changes while developing
   &nbsp;
 - `cd` in the client directory
-- `create-react-app` or NG equivalent to setup your frontend project
-- `npm install` and run `npm start` in two different terminals (ie. on ports 3000 and 3001)
+- generate your frontend project in either React of Angular
+- React: `npx create-react-app $project-name` add `--typescript` parameter if you'd like
+- Angular: `ng new $project-name`
+- `npm install` and run `npm start` (React) or `ng serve` (Angular) in two different terminals (ie. on ports 3000 and 3001)
 - this will start the client twice for testing your chat functionality while developing
 
 ##### Guidelines
 
+File: `server/src/server.ts`
+
 - In server/server.ts you will find predefined events, each corresponds to the functionality as outlined above
-- you will start by implementing the `message` event, for now put in a console.log() so you know you triggered it
-- Open your freshly generated frontend project and create a generic `.ts` or `.js` file named something like `handlers` in the `src` folder
+- You will start by implementing the `message` event, for now put in a console.log() so you know you triggered it
 - `npm install socket.io-client`
-- In this file you will create a function which initiates socket.io
+
+Folder: freshly generated frontend project
+
+- Open your freshly generated frontend project and create a generic `.ts` or `.js` file named something like `handlers` in the `src` folder
+- In this file you will create a function (React) or a service with a nested function (Angular) named `socketHandler` which
+
+  1. initiates socket.io
+  2. sends out Socket.io events to the server
+  3. (later) listens to specific Socket.io events coming from the server
+
 - `import Socketio from "socket.io-client"`
 - `const socket = Socketio.connect("http://localhost:3100")`
-- Now that you have the socket.io client at our disposal, you can easily broadcast an event to the server
+- Now that you have the socket.io client at your disposal, you can easily broadcast an event to the server. Implement the function at the next bullet inside the `socketHandler` function. Don't forget to return the function. This way we will have it available at later stages.
 - `const message = () => { socket.emit("message")}`
-- Go ahead and instantiate the function in the toplevel component of your project
-- Use it to call the function `message()`
-- You should see the `console.log()` in the terminal as defined earlier in the `server/server.ts` file
-- Now it's time to broadcast the message back to all connected clients
-- In the `client/src/handlers.ts` you will create a listener function with a callback
+- This function will be our `initial outgoing event`
+- It's the first event (1) in a small lifecycle of (4) events
+
+File: toplevel component (probably App) of your project
+
+- Call and assign the `socketHandler` function inside your toplevel component
+- This will be the component that encapsulates the rests of your components, in most cases the component: `App`
+- Use the instance you created to directly call the nested function `message()`
+- You should see the `console.log()` in the server terminal as defined earlier in the `server/src/server.ts` file.
+
+File: `server/src/server.ts`
+
+- Now that we received this `message` event from a client, we have to let all connected clients know we received a message. You will do this inside the SERVER.
+- The `client.on("message", function(payload) {}` will be our hook. As you see this listener function contains a callback. This will be called whenever a `message` event is received. This is the second event (2) of our lifecycle.
+- To let all connected clients know a message was sent, simply call `client.on("message", function(payload) { io.emit("message", payload); });
+- This will emit another `message` event back to all connected clients.
+- This was the third event (3) in our lifecycle.
+- All that is left to do, is let the clients listen to it this event and update their state accordingly.
+
+File: `client/src/handlers.ts`
+
+- We will add the listener inside the previously defined `socketHandler` function
+- Inside the `socketHandler` function, create a listener function with a callback
 - `socket.on("message", function(){})`
-- you can use the callback to alter the state of our client, the callback function can be given an parameter to pass the payload from client to server, back to all clients. Make sure you include the parameter in the outgoing event, the server listener and/or the client listener!
+- With this final event (4) our lifecycle of the `message` event is completed
+- You can use the callback to alter the state of our client, the callback function can be given a parameter to pass the payload from client to server, back to all clients.
+- `socket.on("message", function(payload){ // do something with payload - ie. update state in your frontend components})`
+- When adding a parameter you should make sure you also include it in the events you defined earlier:
+
+1. The initial outgoing event from client to server
+2. The server listener - directly followed by:
+3. The outgoing event from server back to the client
+
 - Basically you now have all the tools to create a basic chatbox as outlined in the functionality above
-- I'll leave it to you to figure out how to connect it to your frontend
+- I'll leave it to you to figure out the details of connecting the final event to your frontend component
   &nbsp;
   A few tips:
-- To keep things simple, make an empty list called `chatHistory` to which you can push an object containg the userMessage and the userName.
+- Make an empty list called `chatHistory` to which you can push an object containg the userMessage and the userName.
 - You can use `chatHistory` to map out entries and display all sent lines, you can use the socket.io listener event in the `handlers` file to add entries
 - Hook up your outgoing `message` event to an <input> and a <button>Button</button> component
   &nbsp;
@@ -90,7 +128,7 @@ In the basic exercise the message was broadcasted to all connected clients. You 
 - You will use this event to map the username - specified in the frontend, to a clientId - specified in the backend by creating a listener in the server
   &nbsp;
 - The `username` will be accessible by using a parameter in the `enter` event - sent from the frontend since it is user-defined
-- The `clientId` can be retrieved by calling `client.id` inside the `io.on(client) { }` function in `server/server.ts`
+- The `clientId` can be retrieved by calling `client.id` inside the callback of this `io.on("connection", function(client) {}` listener in `server/server.ts`
   &nbsp;
 - Create 2 helper functions for adding and removing clients to the array
 - Hookup the `enter` event to your frontend flow by calling `emit` when you see fit
