@@ -114,8 +114,9 @@ Focus: frontend components
 - Make an empty list called `chatHistory` to which you can push an object containg the userMessage and the userName.
 - You can use `chatHistory` to map out entries and display all sent lines, you can use the socket.io listener event in the `handlers` file to add entries
 - Hook up your outgoing `message` event to an <input> and a <button>Button</button> component
-  &nbsp;
-  Remember:
+
+Remember:
+
 - socket's `.on()` function is a listener
 - socket's `.emit()` function is an outgoing event or `broadcasting`
 
