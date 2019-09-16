@@ -107,8 +107,6 @@ Focus: frontend components
 
 - I'll leave it to you to figure out the details of connecting the final event to your frontend component
 
-  &nbsp;
-
   A few tips:
 
 - Make an empty list called `chatHistory` to which you can push an object containg the userMessage and the userName.
