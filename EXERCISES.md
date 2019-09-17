@@ -42,9 +42,7 @@ Once you got that figured out, you'll add some functionality:
   &nbsp;
 - `cd` in the client directory
 - generate your frontend project in either React of Angular
-- React: `npx create-react-app $project-name` add `--typescript` parameter if you'd like
-- Angular: `ng new $project-name`
-- `npm install` and run `npm start` (React) or `ng serve` (Angular) in two different terminals (ie. on ports 3000 and 3001)
+- `npm install` and run `npm start` in two different terminals (ie. on ports 3000 and 3001)
 - this will start the client twice for testing your chat functionality while developing
 
 ##### Guidelines
